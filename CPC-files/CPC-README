@@ -1,0 +1,26 @@
+                        
+                                   VENUS/NWChem 
+                          CPC Librarian's Installation Guide
+--------------------------------------------------------------------------------
+
+Below is a description of the steps I took to produce a working copy of the 
+program on a Dell cluster machine running GNU Linux.
+
+1.  I copied the tar.gz file to a directory CPC-D-12-00495-REV. 
+2.  I unpacked the file, tar -zxvf <....>.tar.gz
+3.  cd NWC
+4.  tar -zxvf Nwchem-6.1.1_Feb_27.tar.gz
+5 . I edited the build script included in the .tar.gz file to suit my 
+    environment. The build-venus-nwchem6.1.1.sh file provided in the tar.gz
+    is a copy of my file.
+6.  I loaded the Dell intel compiler and the OpenMPI modules.
+7.  In the NWC directory I ran ./build-venus-nwchem6.1.1.sh 
+    This took approximately 1hr and generated an nwchem executable in the 
+    NWC/nwchem-6.1.1/bin/LINUX64 directory and a ven_nw.e executable in the 
+    NWC/venus-nwchem directory. 
+    The nwchem "make" writes to a "make.log" file in the NWC/nwchem-6.1.1/src 
+    directory. The "make" log for venus is in "NWC/venus-nwchem/make-venus.log".
+8.  I copied the ven_nw.e executable to the NWC/Input-Output directory
+    and created a job script for the test run (see runjob-openmpi.sh).
+    I submitted the job which took approximately 1.5 hours to complete.....
+ 

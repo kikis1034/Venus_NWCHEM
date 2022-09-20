@@ -1,0 +1,166 @@
+             Installation and User Guide for the VENUS/NWChem
+                               June 20, 2013
+
+                            Table of contents
+
+                1. Description of files 
+                   1.1 Subroutines of VENUS/NWChem
+                   1.2 Input and Output example
+                   1.3 Compiling script of VENUS/NWChem
+                   1.4 User Manual for VENUS
+                2. Instructions on the installation/compilation
+
+1. Description of files 
+
+ 1.1 Subroutines of VENUS/NWChem (in the venus-nwchem directory of the tar file)
+
+   Name and description of subroutines of VENUS/NWChem are listed below: 
+
+ADAMSM.f        PERFORM ONE CYCLE OF SIXTH-ORDER ADAMS-MOULTON  INTEGRATION OF THE EQUATIONS OF MOTION.
+ANGVEL.f        SUBTRACT OFF THE ANGULAR VELOCITY
+AXT.f           CALCULATE AXILROD-TELLER POTENTIAL ENERGY DERIVATIVES
+BAREXC.f        BARRIER EXCITATION SELECT MOMENTA FOR THE REACTION COORDINATE
+CENMAS.f	CALCULATE THE CENTER OF MASS MOMENTA AND COORDINATES
+CPUSEC.f        ROUTINE FOR TIMING
+CRCO6.f         SUBROUTINE FROM OSAMMA MORSECRCO6.f
+CUBEND.f	COMPUTE THE DERIVATIVES OF THE NON-DIAGONAL CUBIC TERMS OF THE CH4 POTENTIAL
+DANGLE.f	CALCULATE DIHEDRAL ANGLE TORSION POTENTIAL ENERGY DERIVATIVES
+DMBE.f		CALCULATE THE HO2 DMBE IV POTENTIAL ENERGY AND DERIVATIVE
+DVDQ.f		CALCULATE POTENTIAL ENERGY PARTIAL DERIVATIVES WITH RESPECT TO COORDINATES (PDOT)
+EBOND.f		CALCULATE LOCAL MODE (MORSE OSCILLATOR) ENERGIES
+EIGN.f		DIAGONALIZE MATRIX A, OF WHICH ONLY LOWER TRIANGLE IS USED AND DESTROYED, USING THE GIVENS-HOUSHOLDER ALGORITHM. EIGENVALUES ARE 
+                RETURNED IN ALGEBRAIC ASCENDING ORDER IN ARRAY EIG THE EIGENVECTORS ARE RETURNED IN VEC.
+EIGOUT.f 	WRITE EIGENVALUES AND EIGENVECTORS IN UNIT IP
+ENERGY.f	CALCULATE POTENTIAL, KINETIC AND TOTAL ENERGY OF THE MOLECULAR SYSTEM
+ENMODE.f	CALCULATE NORMAL MODE ENERGIES
+FGMTRX.f	CONSTRUCT AN EFFECTIVE WILSON -FG- MATRIX BY INTRODUCING MASS DEPENDENCE INTO THE POTENTIAL FORCE CONSTANT MATRIX. THE NORMAL MODES 
+                AND THE SPECTROSCOPIC FREQUENCIES ARE THEN EVALUATED.
+FINAL.f		SUBROUTINE FINAL CALCULATES THE PRODUCT ENERGIES AND SCATTERING ANGLES
+FINLNJ.f	CALCULATE VIBRATIONAL AND ROTATIONAL QUANTUM NUMBERS FOR A PRODUCT DIATOM
+FMTRX.f		EVALUATE THE FORCE CONSTANT MATRIX BY DIFFERENCING THE GRADIENT OF THE POTENTIAL ENERGY FUNCTION.
+GAMA.f		FUNCTION GAMA RETURNS A DEVIATE DISTRIBUTED AS A GAMMA DISTRIBUTION OF INTEGER ORDER IA
+gasdev.f        normal distribution random number generator 
+GFINAL.f 	WRITE TRAJECTORY FINAL ANALYSIS RESULTS IN OUTPUT FILE
+GHOST.f		CALCULATE GHOST PAIR INTERACTION POTENTIAL ENERGY DERIVATIVES
+GINROT.f	DETERMINE CLASSICAL HINDERED ROTOR PARTITION FUNCTION BY 10-POINT GAUSS QUADRATURE
+GLPAR.f		CALCULATE PARAMETERS FOR GAUSS-LEGENDRE QUADRATURE
+GPATH.f		CALCULATE FREE ENERGY ALONG THE REACTION PATH
+GRCONV.f	CALCULATE MASS-WEIGHTED AND NORMALIZED GRADIENT FOR REACTION PATH FOLLOWING
+GWRITE.f	WRITE RELEVANT INFORMATION IN OUTPUT FILE
+HALPHA.f	CALCULATE HARMONIC ALPHA BEND POTENTIAL ENERGY DERIVATIVES
+HBEND.f		CALCULATE HARMONIC BEND POTENTIAL ENERGY DERIVATIVES
+HEIGHT.f	CALCULATE VALUE OF HEIGHT ABOVE THE SURFACE FOR SOME ATOMS
+hessint.f	Predictor-corrector algorithm (rotated coordinate projection method correction/redeveloped rotated coordinate correction/
+                general caretesian coordinate correction)
+HEXP.f		CALCULATE GENERAL EXPONENTIAL REPULSION OR ATTRACTION POTENTIAL ENERGY DERIVATIVES
+HFD.f		CALCULATE HARTREE-FOCK DIFFUSION POTENTIAL ENERGY AND DERIVATIVES
+HNONB.f		CALCULATE POTENTIAL ENERGY AND DERIVATIVES OF H---H NON-BONDED INTERACTIONS
+HOMOQP.f	INITIALIZE COORDINATES AND MOMENTA FOR A DIATOM
+HTAU.f		CALCULATE N-FOLD TORSION POTENTIAL ENERGY DERIVATIVES
+INITEBK.f	INITIALIZE PARAMETERS FOR AN OSCILLATOR WITH GIVEN QUANTUM NUMBERS N AND J BY SEMICLASSICAL EBK QUANTIZATION
+INITQP.f	INITIALIZE COORDINATES AND MOMENTA FROM NORMAL MODE PARAMETERS (FREQUENCY, AMPLITUDE,...)
+LENJ.f		CALCULATE LENNARD-JONES POTENTIAL ENERGY DERIVATIVES
+LEPS1.f		CALCULATES GENERALIZED LEPS POTENTIAL ENERGY AND DERIVATIVES
+LEPS2.f		CALCULATES GENERALIZED LEPS POTENTIAL ENERGY AND DERIVATIVES
+LMEXCT.f	CALCULATE ENERGY IN (MORSE OSCILLATOR) LOCAL MODE.
+LMODE.f		SELECT THE DESIRED BOND LENGTH (RWANT) FOR A DIATOM.	
+lnb.f		returns the location of last non-blank character
+Makefile	RULES FOR MAKING VENUS WITH NWCHEM LIBRARIES
+MORSE.f		CALCULATE MORSE POTENTIAL ENERGY DERIVATIVES
+MPATH.f		PERFORM REACTION PATH FOLLOWING
+MPATHO.f         PERFORM REACTION PATH FOLLOWING
+NMODE.f		DRIVER FOR NORMAL MODE ANALYSIS, DOES NOT ALTER EITHER COORDINATES NOR THE ENERGY GRADIENT
+NWCHEM_LINK.f	Subroutines to link with NWChem
+ORTHAN.f	INITIALIZE COORDINATES AND MOMENTA FROM ORTHANT SAMPLING
+PARSN2.f	SET PARAMETERS FOR SELECTED SN2 POTENTIAL ENERGY SURFACE
+PARTI.f		DRIVER ROUTINE FOR CALCULATING ENERGY DERIVATIVES
+POTEN.f		ROTATE MOLECULE BY THETAA AND PHI ON ITS CENTER OF MASS AND CALCULATE POTENTIAL ENERGY
+POTENZ.f	SETS THE COORDINATES FOR REACTANTS OR PRODUCTS TO THEIR EQUILIBRIUM VALUES, DISPLACES A AND B, AND CALCULATES THE POTENTIAL ENERGY
+QMCALC.f	General interface with a quantum chemistry code
+RADAU.f   	A 15TH ORDER INTEGRATOR THAT USES GAUSS-RADAU SPACINGS.
+RAND0.f		GETS THE NEXT RANDOM NUMBER FROM A SEQUENCE OF RANDOM NUMBERS BY SHUFFLING THE SEQUENCE
+RAND1.f		RANDOM NUMBER GENERATION USING THE MULTIPLICATIVE CONGRUENTIAL METHOD
+RANDST.f	SET UP DATA FOR RANDOM NUMBER GENERATOR
+READPT.f	READ IN PARAMETERS FOR ALL KINDS OF ANALYTICAL POTENTIALS
+RELAX.f		CALCULATE POTENTIAL ENERGY AND DERIVATIVES, ASSOCIATED WITH THE INTERACTION OF A H-ATOM	WITH A C-ATOM RADICAL SITE ON A DIAMOND 
+                SURFACE.
+ROTATE.f	RANDOMLY ROTATE A MOLECULE ABOUT ITS CENTER OF MASS BY EULER'S ANGLES
+ROTEN.f		SELECT ANGULAR MOMENTUM AND ROTATIONAL ENERGY
+ROTN.f		CALCULATE ANGULAR MOMENTUM, MOMENT OF INERTIA TENSOR, ANGULAR VELOCITY, AND ROTATIONAL ENERGY		
+RUNGEK.f	CALCULATE POTENTIAL, KINETIC AND TOTAL ENERGY OF THE MOLECULAR SYSTEM
+RYDBG.f		CALCULATE RYDBERG POTENTIAL ENERGY AND DERIVATIVES	
+SELECT.f	SELECT INITIAL CONDITIONS FOR COORDINATES AND MOMENTA
+STATPT.f	STATIONARY POINT SEARCH
+STRET.f		CALCULATE HARMONIC STRETCH POTENTIAL ENERGY DERIVATIVES
+STUBS_LINK.f	DATA DISTRIBUTION
+SURF.f		BEAM TYPE AND THERMAL TYPE SURFACE SAMPLING
+SYBMOL.f	WRITE INFORMATION FOR THE SYBYL MOL FILE FOR MOLECULAR GRAPHICS ANIMATION
+SYMPLE.f	4, 6 or 8-ORDER SYMPLECTIC INTEGRATION OF THE EQUATIONS OF MOTION.
+TETRA.f		CALCULATE TETRAHEDRAL CENTER POTENTIAL ENERGY DERIVATIVES
+thermbath.f	CALCULATE THE THERMAL TEMPERATURE
+thermo.f	CALCULATE THE THERMAL TEMPERATURE
+THRMAN.f	CALCULATE VIBRATIONAL QUANTUM NUMBERS FROM A THERMAL DISTRIBUTION
+VENUS.f		MAIN CODE
+verlet.f	Velocity verlet (1) and Velocity-corrected verlet (2) Integrator
+VETEST.f        CHECK FOR INTERMEDIATE AND FINAL EVENTS
+vFDATE.f	GET CURRENT TIME AND DATE
+VRR.f		CALCULATE NON DIAGONAL STRETCH-STRETCH POTENTIAL ENERGY DERIVATIVES
+VRT.f		CALCULATE NON DIAGONAL STRETCH-BEND POTENTIAL ENERGY DERIVATIVES
+VSN2.f		CALCULATE SN2 POTENTIAL ENERGY AND DERIVATIVES 
+VTT.f		CALCULATE NON DIAGONAL BEND-BEND POTENTIAL ENERGY DERIVATIVES
+WEBOND.f	EVALUATE AND WRITE EXCITED LOCAL MODE POPULATION ARRAYS
+WENMOD.f	EVALUATE AND WRITE NORMAL MODE POPULATION ARRAYS
+WLBOND.f	EVALUATE AND WRITE LOCAL MODE POPULATION ARRAYS
+
+Nwchem-6.1.1_Feb_27.tar.gz in the main directory is the location of all of the NWChem source code.
+
+  1.2 Input and Output example (in the Input-Output directory)
+
+Input:
+  Input.dt              input file for venus
+  Input.nw              input file for nwchem
+
+Output:
+  Output.dat            main output for venus/nwchem
+  fort.8                coordinate of trajectry
+  fort.50               trajectory restart file
+  fort.*                other output files
+
+Job submission scripts:
+  run.sh		  example script to submit calculation
+  runjob-openmpi        example script to submit calculation
+
+
+  1.3 Compilation script of VENUS/NWChem (build-venus-nwchem6.1.1.sh)
+                    
+    An example compilation script is given and named as build-venus-nwchem6.1.1.sh. This script has 
+been tested and will work for a Linux machine which has not installed either NWChem or VENUS. Notice 
+that the compilation process depends highly on computational environment. Therefore some of the 
+settings in the script might need to be changed according to the computer that one wants to have 
+VENUS/NWChem run on. In particular, it is advised that one should get NWChem compiled and working 
+in parallel correctly in stand alone mode before compiling the VENUS/NWChem package.  Then the options 
+used for the standalone compile should be used in the build-venus-nwchem6.1.1.sh file.  Lines in 
+the compiling script that possibly need to be modified include (not all) paths to directories 
+(source code, math library, etc), choice of compilers, math library and so on.
+
+  1.4 User Manual for VENUS (Manual.doc)
+
+    User Manual of VENUS is also provided and named as Manual.doc. For more information about VENUS/NWChem, please visit https://cdssim.chem.ttu.edu.
+
+2. Instructions on the installation/compilation
+
+    The VENUS/NWChem interface is designed to link the general electronic structure program (NWChem) and classical chemical dynamics simulation program (VENUS) to perform direct dynamics simulation in which the trajectories are integrated on the fly with the potential and its derivatives obtained directly from electronic structure theory.
+
+    VENUS needs to couple with NWChem through the "qm geninterface venus" modules. So for a cluster where NWChem has already been compiled, before compiling VENUS, one needs to export "NWCHEM_MODULES="qm geninterface venus"" and make NWChem again. 
+To be more general, an example of compiling VENUS/NWChem on a cluster without NWChem is provided below. 
+
+NWChem version 6.1.1 is used as an example for the compilation.Later versions of NWChem should also be compatible with Venus but earlier versions, i.e. pre 6.1.1, may not.
+
+    The complete compiling processes includes:
+     1. Choose the directory you want VENUS/NWChem to be compiled in and untar the distribution file.
+     2. Unzip the Nwchem-6.1.1_Feb_27.tar.gz file to obtain the NWChem-6.1.1 source code, 
+        the new generated folder is nwchem-6.1.1-src
+     3. Modify the compilation script ./build-venus-nwchem6.1.1.sh to match the cluster and directories
+        (as described above).
+     4. Compile VENUS/NWChem by ./build-venus-nwchem6.1.1.sh
+

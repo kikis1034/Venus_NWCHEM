@@ -1,0 +1,37 @@
+      SUBROUTINE WLBOND(T,EB,EBSQ,NLM,N,NUM)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+C
+C         EVALUATE AND WRITE LOCAL MODE POPULATION ARRAYS
+C
+      DIMENSION T(2000),EB(2,2000),EBSQ(2,2000),
+     *          PT(2000),PEB(2,2000),PEBSQ(2,2000)
+      ANUM=DBLE(NUM)
+      BNUM=DBLE(NUM-1)
+      DO I=1,NLM
+         DO J=1,N
+            PT(J)=T(J)/100.0D0
+            DUM1=(EBSQ(I,J)-EB(I,J)*EB(I,J)/ANUM)/BNUM
+            IF (DUM1.LT.0.0D0) THEN
+               WRITE(77,9997)DUM1
+               DUM1=-DUM1
+            ENDIF
+            PEBSQ(I,J)=SQRT(DUM1)
+            PEB(I,J)=EB(I,J)/ANUM
+         ENDDO
+      ENDDO
+C
+      DO I=1,NUM
+         WRITE(16,9990)I
+         DO J=1,N
+            WRITE(16,9995)PT(J),PEB(I,J),PEBSQ(I,J)
+         ENDDO
+      ENDDO
+      WRITE(16,9991)NUM
+      REWIND 16
+ 9991 FORMAT(I10)
+ 9990 FORMAT(5X,'ANOTHER LOCAL MODE',I4)
+ 9995 FORMAT((3(1PE15.4,',')))
+ 9997 FORMAT('      DUM =',1PE15.4)
+      RETURN
+      END

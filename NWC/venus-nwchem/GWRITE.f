@@ -1,0 +1,203 @@
+      SUBROUTINE GWRITE
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+C
+C         WRITE RELEVANT INFORMATION IN OUTPUT FILE
+C
+      COMMON/PRLIST/T,V,H,TIME,NTZ,NT,ISEED0(8),NC,NX
+      COMMON/PARRAY/KR(300),JR(300),KB(300),MB(300),IB(300),IA(300),
+     *ITAU(300),ITET(300),IDH(300),IHT(300)
+      COMMON/SELTB/QZ(NDA3),NSELT,NSFLAG,NACTA,NACTB,NLINA,NLINB,NSURF
+      COMMON/PRFLAG/NFQP,NCOOR,NFR,NUMR,NFB,NUMB,NFA,NUMA,NFTAU,NUMTAU,
+     *NFTET,NUMTET,NFDH,NUMDH,NFHT,NUMHT
+      COMMON/QPDOT/Q(NDA3),PDOT(NDA3)
+      COMMON/PQDOT/P(NDA3),QDOT(NDA3),W(NDA)
+      COMMON/COORS/R(NDA*(NDA+1)/2),THETA(ND03),ALPHA(ND04),CTAU(ND06),
+     *GR(ND08,5),TT(ND09,6),DANG(ND13I)
+      COMMON/FORCES/NATOMS,I3N,NST,NM,NB,NA,NLJ,NTAU,NEXP,NGHOST,NTET,
+     *NVRR,NVRT,NVTT,NANG,NAXT,NSN2,NRYD,NHFD,NLEPSA,NLEPSB,NDMBE,
+     *NRAX,NONB,NMO,NCRCO6
+      COMMON/CONSTN/C1,C2,C3,C4,C5,C6,C7,PI,HALFPI,TWOPI
+      COMMON/RANCOM/RANLST(100),ISEED3(8),IBFCTR
+      COMMON/TESTIN/VRELO,INTST
+      COMMON/TABLEB/TABLE(42*NDA)
+      COMMON/GPATHB/WM(NDA3),TEMP(NDP),AI1D(5),AAI(2),BBI(2),SYMM(5),
+     *SYMA,SYMB,GTEMP(NDP),NFLAG(NDP),N1DR,N2DR
+      COMMON/TESTB/RMAX(NDP),RBAR(NDP),NTEST,NPATHS,NABJ(NDP),NABK(NDP),
+     *NABL(NDP),NABM(NDP),NPATH,NAST
+      COMMON/VECTB/VI(4),OAMI(4),AMAI(4),AMBI(4),ETAI,ERAI,ETBI,ERBI
+      COMMON/FRAGB/WTA(NDP),WTB(NDP),LA(NDP,NDA),LB(NDP,NDA),
+     *QZA(NDP,NDA3),QZB(NDP,NDA3),NATOMA(NDP),NATOMB(NDP)
+      common/vrscal/nsel,nscale,nequal,thermotemp,nrgd
+      DIMENSION HT(300)
+C
+    1 FORMAT(2X,'THE CYCLE COUNT IS:',I14,16X,'TIME:',F12.3)
+    2 FORMAT(2X,'KINETIC ENERGY: ',1PE17.9,'    POTENTIAL ENERGY: ',
+     *E17.9/2X,'TOTAL ENERGY:   ',E17.9)
+    3 FORMAT(19X,'Q',37X,'P')
+    4 FORMAT(F11.6,2F12.6,2X,3F12.6)
+    5 FORMAT(4X,' ATOMS  ',5X,'BOND LENGTH(A)')
+    6 FORMAT(2X,2I4,10X,F7.3)
+    7 FORMAT(5X,'ATOMS',7X,'ANGLE (DEGREES)')
+    8 FORMAT(2X,3I3,8X,F8.3)
+    9 FORMAT(1X,'XXXXXXXXXXXXXXXXXXXXXXXX TRAJECTORY NUMBER ',I4,
+     *' XXXXXXXXXXXXXXXXXXXXXXXXX')
+   10 FORMAT(2X,'THE CURRENT RANDOM NUMBER IS: ',8I4,' BASE 256')
+   11 FORMAT(2X,'NUMBER',5X,'ALPHA(DEGREES)')
+   12 FORMAT(4X,I3,12X,F8.3)
+   13 FORMAT(2X,'NUMBER',5X,'TAU(DEGREES)')
+   15 FORMAT(2X,'NUMBER',5X,'THETA(TETRAHEDRAL,DEGREES)')
+   16 FORMAT(2X,'NUMBER',5X,'DIHEDRAL(DEGREES)')
+   17 FORMAT(1X,3F11.7)
+   20 FORMAT(5X,'HEIGHT FROM SURFACE FOR ATOMS:',20I4)
+   22 FORMAT(2X,'NTZ:',I5,2X,'NC:',I8,2X,'HEIGHT:',20F9.3)
+C
+C         WRITE RELEVANT INFORMATION IN CHECKPOINT FILE
+C
+      OPEN(50,FORM='UNFORMATTED')
+      REWIND(50)
+      WRITE(50)Q,P,QDOT,PDOT,TABLE,VRELO,RANLST,GTEMP,NFLAG,ISEED0,
+     *ISEED3,NX,NC,NTZ,INTST,NAST,IBFCTR,
+     *VI,OAMI,AMAI,AMBI,ETAI,ERAI,ETBI,ERBI
+      CLOSE(50)
+C
+C         WRITE TRAJECTORY INFORMATION
+C
+      CNC=NC
+      TI=TIME*CNC
+      WRITE(6,9)NTZ
+      WRITE(6,1)NC,TI
+      IF (NSELT.EQ.2.OR.NSELT.EQ.3) WRITE(6,10)(ISEED0(9-I),I=1,8)
+      WRITE(6,2)T,V,H
+C
+C         WRITE COORDINATES FOR GRAPHICS
+C
+      IF (NCOOR.EQ.1.AND.NSELT.NE.-2) THEN
+         WRITE(8,9)NTZ
+         WRITE(8,17)(Q(I),I=1,NATOMS*3)
+      ENDIF
+C
+C         WRITE COORDINATES AND MOMENTA 
+C
+      IF (NFQP.NE.0) THEN
+         WRITE(6,3)
+         J=1
+         DO L=1,NATOMS
+            M=J+2
+            WRITE(6,4)(Q(I),I=J,M),(P(I),I=J,M)
+            J=J+3
+         ENDDO
+      ENDIF
+C
+C         CALCULATE AND WRITE POSSIBLE INTERATOMIC DISTANCES
+C
+      IF (NFR.NE.0) THEN
+         WRITE(6,5)
+         DO I=1,NUMR
+            J3=3*JR(I)
+            J2=J3-1
+            J1=J2-1
+            K3=3*KR(I)
+            K2=K3-1
+            K1=K2-1
+            T1=Q(K1)-Q(J1)
+            T2=Q(K2)-Q(J2)
+            T3=Q(K3)-Q(J3)
+            RR=SQRT(T1*T1+T2*T2+T3*T3)
+            WRITE(6,6)JR(I),KR(I),RR
+         ENDDO
+      ENDIF
+C
+C         CALCULATE AND WRITE POSSIBLE ANGLES 
+C
+      IF (NFB.NE.0) THEN
+         WRITE(6,7)
+         DO I=1,NUMB
+            K3=3*KB(I)
+            K2=K3-1
+            K1=K2-1
+            M3=3*MB(I)
+            M2=M3-1
+            M1=M2-1
+            I3=3*IB(I)
+            I2=I3-1
+            I1=I2-1
+            T1=Q(I1)-Q(M1)
+            T2=Q(I2)-Q(M2)
+            T3=Q(I3)-Q(M3)
+            T4=Q(K1)-Q(M1)
+            T5=Q(K2)-Q(M2)
+            T6=Q(K3)-Q(M3)
+            R1=SQRT(T1*T1+T2*T2+T3*T3)
+            R2=SQRT(T4*T4+T5*T5+T6*T6)
+            CTHETA=(T1*T4+T2*T5+T3*T6)/R1/R2
+            IF (CTHETA.GT. 1.00D0) CTHETA= 1.00D0
+            IF (CTHETA.LT.-1.00D0) CTHETA=-1.00D0
+            DUM=ACOS(CTHETA)/C4
+            WRITE(6,8)KB(I),MB(I),IB(I),DUM
+         ENDDO
+      ENDIF
+C
+C         WRITE ALPHA, TAU, TETRAHEDRAL AND DIHEDRAL ANGLES
+C         THESE ARE POTENTIAL FUNCTION - DEPENDENT
+C
+      IF (NFA.NE.0) THEN
+         WRITE(6,11)
+         DO I=1,NUMA
+            DUM=ALPHA(IA(I))/C4
+            WRITE(6,12)IA(I),DUM
+         ENDDO
+      ENDIF
+      IF (NFTAU.NE.0) THEN
+         WRITE(6,13)
+         DO I=1,NUMTAU
+            DUM=ACOS(CTAU(ITAU(I)))/C4
+            WRITE(6,12)ITAU(I),DUM
+         ENDDO
+      ENDIF
+      IF (NFTET.NE.0) THEN
+         WRITE(6,15)
+         DO I=1,NUMTET
+            DUM=TT(1,ITET(I))/C4
+            WRITE(6,12)ITET(I),DUM
+         ENDDO
+      ENDIF
+      IF (NFDH.NE.0) THEN
+         WRITE(6,16)
+         DO I=1,NUMDH
+            DUM=DANG(IDH(I))/C4
+            WRITE(6,12) IDH(I),DUM
+         ENDDO
+      ENDIF
+C
+C          CALCULATE POSITION HEIGHTS ABOVE THE SURFACE FOR SOME ATOMS
+C          SAVE DATA IN FORT.17
+C
+      IF (NFHT.NE.0) THEN
+c         WRITE(17,20)(IHT(I),I=1,NUMHT)
+         DO I=1,NUMHT
+            CALL HEIGHT(IHT(I),HT(I))
+         ENDDO
+         WRITE(17,22)NTZ,NC,(HT(I),I=1,NUMHT)           
+      ENDIF
+c
+c          calculate system temperature
+c
+      if (nsel.eq.1) then
+         n=natomb(1)-nrgd
+         tb=0.d0
+         do i=1,n
+           j=lb(1,i)
+           j3=3*j
+           j2=j3-1
+           j1=j2-1
+           tb=tb+(p(j1)**2+p(j2)**2+p(j3)**2)/w(j)
+         enddo
+         tempinit=tb/(3.0d0*dble(n)*0.00198717d0*c1)
+         write(6,*)'system temperature=',tempinit
+      endif
+C
+      CALL FLUSH(6)
+C
+      RETURN
+      END

@@ -1,0 +1,73 @@
+c
+c   This SIZES file is for nactb equal to 7
+c     i.e. for md selection of surface temperature
+c
+c***********************************************************************
+c     VENUS dimensions
+c
+c     NDA      maximum number of atoms
+c     NDA3     total number of degrees of freedom (NDA*3)
+c  For nact=7 (md selection for temperature) NDA3=natoma*3
+c     NDAyf     maximum number of atoms in fragment A
+c     NDA3yf   nacta=7: 3*NDAyf, otherwise 3*NDA
+c  This distinction is made in SIZESvg and SIZESmd, so choose appropriate one.
+c     NDP      number of reaction paths
+c     NDG      number of angles to be calculated in FINAL
+c
+      PARAMETER(NDA=2100,NDA3=NDA*3,NDP=10,NDG=18)
+      PARAMETER(NDAyf=130,NDA3yf=NDAyf*3)
+c
+c     ND01    number of harmonic stretches
+c     ND02    number of morse stretches
+c     ND03    number of harmonic bends
+c     ND04    number of harmonic wags
+c     ND05    number of Lennard-Jones terms
+c     ND06    number of torsions
+c     ND07    number of generalized expotential repulsion and attraction
+c                       potential functions
+c     ND08    number of ghost pair interactions
+c     ND09    number of tetrahedral centers
+c     ND10    number of R-R couplings
+c     ND11    number of R-THETA couplings
+c     ND12    number of THETA-THETA couplings
+c     ND13I   number of dihedral angles
+c     ND13J   number of terms in the dihedral potential energy 
+c
+c     ND21    number of sp2/sp3 relaxation for a H + diamond interaction
+c     ND22    number of H---H non-bonded interactions
+c
+      PARAMETER(ND01=6000,ND02=1200,ND03=10000,ND04=20,ND05=30000)
+      PARAMETER(ND06=20,ND07=50000,ND08=20,ND09=20)
+      PARAMETER(ND10=500, ND11=1200, ND12=1200) 
+      PARAMETER(ND13I=300,ND13J=12) 
+      PARAMETER(ND21=2,ND22=100)
+c
+c     NCF  number of maximum integration points for Gauss-Legendre Quadrature
+c
+      PARAMETER(NCF=300)
+c
+c     NDIHE   number of hessians from Gaussian
+c             should not be less than NDA3*(NDA3+1)/2+2*NDA3,
+c             where NDA3=3*number of atoms
+c
+      PARAMETER(NDIHE=NDA3yf*(NDA3yf+1)/2+2*NDA3yf)
+c
+c     The followings are for the ebk quantizations
+c     ne: number of energies to do the action integral
+c     mxlvl: maximum number of energy levels for partition function
+c
+      parameter(ne=300,mxlvl=600)
+c
+c     The followings are used for direct dynamics calculation using
+c     gaussian 99 version b8+ as the trajectory integrator.
+c     mxpth      maximum number of reaction path
+c     mxdiatom   maximum number of diatomic products
+c
+      parameter(mxpth=10,mxdiatom=5)
+c
+c     some energy conversion parameters
+c     cal2cm: kcal/mol to cm-1
+c     cm2cal: cm-1 to kcal/mol
+c
+      parameter(cal2cm=349.755d0,cm2cal=1.d0/cal2cm)
+

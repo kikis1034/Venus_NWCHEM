@@ -1,0 +1,202 @@
+      SUBROUTINE ORTHAN(AM,WT,ENMT,HSCALE,QMAX,QMIN,PMAX,PSCALE,EROT,N)
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+C
+C         INITIALIZE COORDINATES AND MOMENTA FROM ORTHANT SAMPLING
+C
+      COMMON/SELTB/QZ(NDA3),NSELT,NSFLAG,NACTA,NACTB,NLINA,NLINB,NSURF
+      COMMON/WASTE/QQ(NDA3),PP(NDA3),WX,WY,WZ,L(NDA),NAM
+      COMMON/QPDOT/Q(NDA3),PDOT(NDA3)
+      COMMON/PQDOT/P(NDA3),QDOT(NDA3),W(NDA)
+      COMMON/PRLIST/T,V,H,TIME,NTZ,NT,ISEED0(8),NC,NX
+      COMMON/CONSTN/C1,C2,C3,C4,C5,C6,C7,PI,HALFPI,TWOPI
+      COMMON/FINALB/EROTA,EROTB,EA(3),EB(3),AMA(4),AMB(4),AN,AJ,BN,BJ,
+     *OAM(4),EREL,ERELSQ,BF,SDA,SDB,DELH(NDP),ANG(NDG),NFINAL
+      COMMON/TESTB/RMAX(NDP),RBAR(NDP),NTEST,NPATHS,NABJ(NDP),NABK(NDP),
+     *NABL(NDP),NABM(NDP),NPATH,NAST
+      COMMON/FORCES/NATOMS,I3N,NST,NM,NB,NA,NLJ,NTAU,NEXP,NGHOST,NTET,
+     *NVRR,NVRT,NVTT,NANG,NAXT,NSN2,NRYD,NHFD,NLEPSA,NLEPSB,NDMBE,
+     *NRAX,NONB,NMO,NCRCO6
+      DIMENSION RV(3*NDA3),QMAX(NDA3),QMIN(NDA3),PMAX(NDA),AM(4),QCM(
+     *3),VCM(3)
+   27 FORMAT(15X,'INTERNAL ENERGY=',1PE18.9,' KCAL/MOL')
+C
+      CALL DVDQ
+      CALL ENERGY
+      EZERO=H
+      NSCALE=0
+C
+C         STORE THE ANGULAR MOMENTUM VECTOR FROM SELECT
+C
+      DUM1=AM(1)
+      DUM2=AM(2)
+      DUM3=AM(3)
+C
+C         CALCULATE INITIAL CONDITIONS USING ORTHANT SAMPLING.
+C         FIRST TIME THROUGH SELECT NSFLAG=0, AND THE QMAX, QMIN, PMAX,
+C         AND PMIN ARRAYS MUST BE CALCULATED.
+C
+      IF(NSFLAG.EQ.1) GOTO 12
+      DO I=1,N
+         J=3*L(I)+1
+         DO K=1,3
+            P(J-K)=0.0D0
+            Q(J-K)=QZ(J-K)
+         ENDDO
+      ENDDO
+      DO I=1,N
+         J=3*L(I)-3
+         DO K=1,3
+    3       Q(J+K)=Q(J+K)+0.1D0
+            CALL DVDQ
+            CALL VETEST
+            IF (NTEST.EQ.0) THEN
+               CALL ENERGY
+               H=H-EZERO
+               IF (H.LT.ENMT) GOTO 3
+            ENDIF
+            QMAX(J+K)=Q(J+K)
+            Q(J+K)=QZ(J+K)
+    5       Q(J+K)=Q(J+K)-0.1D0
+            CALL DVDQ
+            CALL VETEST
+            IF (NTEST.EQ.0) THEN
+               CALL ENERGY
+               H=H-EZERO
+               IF(H.LT.ENMT) GOTO 5
+            ENDIF
+            QMIN(J+K)=Q(J+K)
+            Q(J+K)=QZ(J+K)
+         ENDDO
+      ENDDO
+      SDUM=ENMT*C1*2.0D0
+      DO I=1,N
+         PMAX(L(I))=SQRT(SDUM*W(L(I)))*PSCALE
+      ENDDO
+C
+C         CALCULATE 3N DIMENSIONAL RANDOM UNIT VECTOR
+C
+   12 CONTINUE
+      NDIM=6*N-2
+      SUMM=1.0D0
+      SUM=1.0D0
+      J=1
+   13 RAND=RAND0(ISEED)
+      XS=RAND*SUM
+      SDUM=SUMM-XS*XS
+      PRO=DBLE(NDIM-1)/2.0D0
+      PRO=(SDUM/SUMM)**PRO
+      RAND=RAND0(ISEED)
+      IF (PRO.LT.RAND) GOTO 13
+      RV(J)=XS
+      SUMM=SDUM
+      SUM=SQRT(SUMM)
+      NDIM=NDIM-1
+      J=J+1
+      IF (NDIM.GT.0) GOTO 13
+      RAND=RAND0(ISEED)
+      XS=SUM*SIN(HALFPI*RAND)
+      RV(J)=XS
+      J=J+1
+      RV(J)=SQRT(SUMM-XS*XS)
+C
+C         SELECT MOMENTA
+C
+      J=1
+      DO I=1,N
+         K=3*L(I)
+         P(K-2)=RV(J)*PMAX(L(I))
+         J=J+1
+         P(K-1)=RV(J)*PMAX(L(I))
+         J=J+1
+         P(K)=RV(J)*PMAX(L(I))
+         J=J+1
+      ENDDO
+      DO I=1,N
+         J=3*L(I)+1
+         DO K=1,3
+            RAND=RAND0(ISEED)
+            IF(RAND.LT.0.50D0)P(J-K)=-P(J-K)
+         ENDDO
+      ENDDO
+C
+C         SELECT COORDINATES
+C
+      JJ=3*N+1
+      DO I=1,N
+         J=3*L(I)-3
+         DO K=1,3
+            RAND=RAND0(ISEED)
+            IF (RAND.GE.0.50D0) THEN
+               Q(J+K)=(QMAX(J+K)-QZ(J+K))*RV(JJ)+QZ(J+K)
+            ELSE
+               Q(J+K)=(QMIN(J+K)-QZ(J+K))*RV(JJ)+QZ(J+K)
+            ENDIF
+            JJ=JJ+1
+         ENDDO
+      ENDDO
+C
+C         SUBTRACT OFF CENTER OF MASS VELOCITY
+C
+   20 CONTINUE
+      CALL CENMAS(WT,QCM,VCM,N)
+      DO I=1,N
+         J=3*L(I)+1
+         DO K=1,3
+            P(J-K)=PP(J-K)
+         ENDDO
+      ENDDO
+C
+C         ADD ANGULAR VELOCITY VECTOR TO THE MOLECULE TO FIT THE
+C         TOTAL ROTATIONAL ENERGY
+C
+C         ADD ANGULAR MOMENTUM VECTOR FROM SELECT TO THE MOLECULE.
+C         CALCULATE THE REQUIRED ANGULAR VELOCITY AND ADD IT TO THE
+C         MOLECULE.
+C
+      CALL ROTN(AM,EROT,N)
+      AM(1)=DUM1-AM(1)
+      AM(2)=DUM2-AM(2)
+      AM(3)=DUM3-AM(3)
+      NAM=1
+      CALL ROTN(AM,EROT,N)
+      NAM=0
+      WX=-WX
+      WY=-WY
+      WZ=-WZ
+      CALL ANGVEL(N)
+C
+C         SCALE COORDINATES AND MOMENTA TO FIT THE TOTAL ENERGY
+C
+      CALL DVDQ
+      CALL ENERGY
+      H=H-EZERO
+      WRITE(6,27)H
+      SDUM=ABS(HSCALE-H)/HSCALE
+      IF (SDUM.GE.0.001D0) THEN
+         NSCALE=NSCALE+1
+         IF (NSCALE.GT.50) STOP
+         SDUM=SQRT(HSCALE/H)
+         DO I=1,N
+            J=3*L(I)+1
+            DO K=1,3
+               P(J-K)=P(J-K)*SDUM
+               Q(J-K)=(Q(J-K)-QZ(J-K))*SDUM+QZ(J-K)
+            ENDDO
+         ENDDO
+         GOTO 20
+      ENDIF
+C
+      H=H+EZERO
+C
+C         RANDOMLY ROTATE THE MOLECULE ABOUT ITS CENTER OF MASS BY
+C         EULER'S ANGLES.  CENTER OF MASS COORDINATES(QQ) AND MOMENTA(PP)
+C         ARE PASSED FROM SUBROUTINES CENMAS AND ANGVEL THROUGH COMMON
+C         BLOCK WASTE.
+C
+      IF (N.NE.NATOMS) CALL VENUS_ROTATE(N)
+C
+      CALL ROTN(AM,EROT,N)
+C
+      RETURN
+      END

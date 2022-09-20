@@ -1,0 +1,20 @@
+      SUBROUTINE vFDATE(ADATE)
+      CHARACTER*30 ADATE
+C
+C         GET CURRENT TIME AND DATE
+C         (UNIX SYSTEMS ONLY)
+C
+   10 FORMAT(A)
+      CALL SYSTEM('date > venus.date')
+      OPEN(UNIT=99,FILE='venus.date',FORM='FORMATTED')
+      READ(99,10)ADATE
+      CLOSE(UNIT=99)
+      CALL SYSTEM('rm venus.date')
+C
+C         GET CURRENT TIME AND DATE
+C         (CRAY-UNICOS SYSTEM WITH CFT77 COMPILER).
+C
+c     CALL DATE(ADATE(1:11))
+c     CALL CLOCK(ADATE(15:26))
+      RETURN
+      END

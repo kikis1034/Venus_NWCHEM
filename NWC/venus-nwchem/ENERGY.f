@@ -1,0 +1,386 @@
+      SUBROUTINE ENERGY
+      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      INCLUDE 'SIZES'
+C
+C         CALCULATE POTENTIAL, KINETIC AND TOTAL ENERGY OF THE
+C         MOLECULAR SYSTEM
+C
+C      PARAMETER(ND1=2000)
+      COMMON/PQDOT/P(NDA3),QDOT(NDA3),W(NDA)
+      COMMON/HFIT/PSCALA,PSCALB,VZERO
+      COMMON/PRLIST/T,V,H,TIME,NTZ,NT,ISEED0(8),NC,NX
+      COMMON/STRETB/RSZ(ND01),FS(ND01),N1J(ND01),N1K(ND01)
+      COMMON/MORSEB/RMZ(ND02),B(ND02),D(ND02),N2J(ND02),N2K(ND02),
+     *CM1(ND02),CM2(ND02),CM3(ND02),CM4(ND02),CM5(ND02)
+      COMMON/BENDB/THETAZ(ND03),FBZ(ND03),CJ(ND03),CK(ND03),RJZ(ND03),
+     *RKZ(ND03),FB(ND03),N3J(ND03),N3K(ND03),N3M(ND03)
+      COMMON/ALPHAB/FA(ND04),N4J(ND04),N4K(ND04),N4M(ND04),N4N(ND04)
+      COMMON/LENJB/ALJ(ND05),BLJ(ND05),CLJ(ND05),N5J(ND05),N5K(ND05),
+     *NREP(ND05),MREP(ND05),LREP(ND05)
+      COMMON/TAUB/VZTAU(ND06),N6I(ND06),N6J(ND06),N6K(ND06),N6L(ND06),
+     *N6M(ND06),N6N(ND06)
+      COMMON/EXPB/AEX(ND07),BEX(ND07),CEX(ND07),N7J(ND07),N7K(ND07),
+     *RNPOW(ND07)
+      COMMON/GHOSTB/GC1(ND08),GEX1(ND08),GEX2(ND08),N8I(ND08),N8J(ND08),
+     *N8K(ND08),N8L(ND08),N8M(ND08),N8N(ND08)
+      COMMON/VRRB/FKRRZ(ND10),FKRR(ND10),CIJ(ND10),CKL(ND10),
+     *            RIJ0(ND10),RKL0(ND10),N10I(ND10),N10J(ND10),
+     *            N10K(ND10),N10L(ND10)
+      COMMON/VRTB/FKRTZ(ND11),FKRT(ND11),CRT(ND11),R110(ND11),
+     *            N11I(ND11),N11J(ND11),N11B(ND11),NRT(ND11)
+      COMMON/VTTB/FKTTZ(ND12),FKTT(ND12),N12B(ND12),N12BB(ND12),
+     *            NTT(ND12)
+      COMMON/ANGLEB/FDH(ND13I,ND13J),GDH(ND13I,ND13J),NDH(ND13I),
+     *N13I(ND13I),N13J(ND13I),N13K(ND13I),N13L(ND13I)
+      COMMON/AXTB/ZAXT(300),VAXT(300),N14I(300),N14J(300),N14K(300)
+      COMMON/RYDBGB/RYDZ(100),DRYD(100),ARYD(100),VRYD(100),
+     *N16J(100),N16K(100)
+      COMMON/HFDB/AHFD(100),BHFD(100),RHFD(100),VHFD(100),C6HFD(100),
+     *C8HFD(100),C10HFD(100),N17J(100),N17K(100)
+      COMMON/LEPSA/RLZ1(100),RLZ2(100),RLZ3(100),BL1(100),BL2(100),
+     *BL3(100),DL1(100),DL2(100),DL3(100),N18J1(100),N18K1(100),
+     *N18J2(100),N18K2(100),N18J3(100),N18K3(100),DELTA1(100),
+     *DELTA2(100),DELTA3(100),VLEPSA(100)
+      COMMON/LEPSB/RLZS1(100),RLZS2(100),RLZS3(100),RLZT1(100),
+     *RLZT2(100),RLZT3(100),BLS1(100),BLS2(100),BLS3(100),BLT1(100),
+     *BLT2(100),BLT3(100),DLS1(100),DLS2(100),DLS3(100),DLT1(100),
+     *DLT2(100),DLT3(100),VLEPSB(100),N19J1(100),N19K1(100),
+     *N19J2(100),N19K2(100),N19J3(100),N19K3(100)
+      COMMON/DMBEB/VDMBE,NDMB(3)
+      COMMON/COORS/R(NDA*(NDA+1)/2),THETA(ND03),ALPHA(ND04),CTAU(ND06),
+     *GR(ND08,5),TT(ND09,6),DANG(ND13I)
+      COMMON/FORCES/NATOMS,I3N,NST,NM,NB,NA,NLJ,NTAU,NEXP,NGHOST,NTET,
+     *NVRR,NVRT,NVTT,NANG,NAXT,NSN2,NRYD,NHFD,NLEPSA,NLEPSB,NDMBE,
+     *NRAX,NONB,NMO,NCRCO6
+      COMMON/PSN2/PESN2,GA,RA,RB
+      COMMON/CONSTN/C1,C2,C3,C4,C5,C6,C7,PI,HALFPI,TWOPI
+      COMMON/TETRAB/ N9I(20),N9J(20),N9K(20),N9L(20),N9M(20),
+     +               FT0(20,6),FT2(20,6),GT0(20,6),GT2(20,6),
+     +               HT0(20,6),HT2(20,6),THT(20,6),R0(20,4),
+     +               THT1(20,6),THT2(20,6),FD1(20,4),
+     +               HD1(20,4),GN0(20,5),FT(20,6),GT(20,6),
+     +               HT(20,6),FD(20,4),HD(20,4),DLTA(20,48),
+     +               TETTST,SGN1,SGN2,SGN3,SGN4
+      COMMON/CUBEB/ S3(4),DS3(4),CBIC(15,6),ANG1(20,6,4),GN4(20)
+      COMMON/RELAXB/VRELAX(ND21)
+      COMMON/NNB/N22J(ND22),N22K(ND22),ASR(ND22),BSR(ND22),CSR(ND22),
+     *NDSR(ND22),ALR(ND22),BLR(ND22),CLR(ND22),NDLR(ND22),AAS(ND22),
+     *AA0(ND22),NAA(ND22)
+      COMMON/GAUSS/ICHRG,IMULTP,IAN(NDAyf),VGAUSS
+C
+      T=0.0D0
+      V=0.0D0
+C
+C         CALCULATE POTENTIAL ENERGY OF HARMONIC STRETCHES
+C
+      IF (NST.NE.0) THEN
+         DO I=1,NST
+            NJ=N1J(I)
+            NK=N1K(I)
+            JK=(NJ-1)*(2*NATOMS-NJ)/2+NK-NJ
+            V=V+FS(I)*(R(JK)-RSZ(I))**2/2.0D0
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF MORSE FUNCTIONS
+C
+      IF (NM.NE.0) THEN
+         DO I=1,NM
+            NJ=N2J(I)
+            NK=N2K(I)
+            JK=(NJ-1)*(2*NATOMS-NJ)/2+NK-NJ
+C
+C             BETA PARAMETER IS REPRESENTED AS A CUBIC POLYNOMIAL
+C
+            BETAM=B(I)
+            RLCM=R(JK)-RMZ(I)
+            IF (B(I).LE.0.0D0) THEN
+               BETAM=CM1(I)+CM2(I)*RLCM+CM3(I)*RLCM**2+CM4(I)*RLCM**3
+     *              +CM5(I)*RLCM**4
+            ENDIF
+            V=V+D(I)*(1.0D0-EXP(-BETAM*RLCM))**2
+         ENDDO
+      ENDIF
+
+C
+C         CALCULATE POTENTIAL ENERGY OF CRCO6 FUNCTIONS
+C
+
+      IF (NCRCO6.NE.0) THEN
+         DO I=1,6
+            NJ=N2J(I)
+            NK=N2K(I)
+            JK=(NJ-1)*(2*N-NJ)/2+NK-NJ
+C
+C             BETA PARAMETER IS REPRESENTED AS A CUBIC POLYNOMIAL
+C
+            BETAM=B(I)
+            RLCM=R(JK)-RMZ(I)
+            IF (B(I).LE.0.0D0) THEN
+               BETAM=CM1(I)+CM2(I)*RLCM+CM3(I)*RLCM**2+CM4(I)*RLCM**3
+     *              +CM5(I)*RLCM**4
+            ENDIF
+
+            V=V+dcrco6*(1.0D0-dexp(-betam*RLCM))**2
+         ENDDO
+         v=v+deltad
+      ENDIF	 
+
+C
+C         CALCULATE POTENTIAL ENERGY OF HARMONIC BENDS
+C
+      IF (NB.NE.0) THEN
+         DO I=1,NB
+            V=V+FB(I)*(THETA(I)-THETAZ(I))**2/2.0D0
+         ENDDO
+         EH2O=V
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF ALPHA BENDS
+C
+      IF (NA.NE.0) THEN
+         DO I=1,NA
+            V=V+FA(I)*(ALPHA(I)-PI)**2/2.0D0
+         ENDDO
+      ENDIF
+
+C
+C         CALCULATE POTENTIAL ENERGY OF GENERAL LENNARD-JONES POTENTIAL
+C         IF NREP(I), MREP(I), OR LREP(I) = 0, THE PROGRAM BYPASSES THE
+C         APPROPRIATE PART OF THE POTENTIAL.
+C
+      IF (NLJ.NE.0) THEN
+         DO I=1,NLJ
+            NJ=N5J(I)
+            NK=N5K(I)
+            JK=(NJ-1)*(2*NATOMS-NJ)/2+NK-NJ
+            IF (NREP(I).NE.0) THEN 
+               V=V+ALJ(I)/R(JK)**NREP(I)
+            ENDIF
+            IF (MREP(I).NE.0) THEN
+               V=V+BLJ(I)/R(JK)**MREP(I)
+            ENDIF
+            IF (LREP(I).NE.0) THEN
+               V=V+CLJ(I)/R(JK)**LREP(I)
+            ENDIF
+         ENDDO
+      ENDIF
+C
+C         CALCULATE TORSION POTENTIALS
+C         VZTAU .LT. ZERO INDICATES 3-FOLD TORSION
+C
+
+      IF (NTAU.NE.0) THEN
+         DO I=1,NTAU
+            IF (VZTAU(I).LT.0) THEN 
+               V=V-VZTAU(I)*(0.5D0-1.5D0*CTAU(I)+2.0D0*CTAU(I)**3)
+            ELSE
+               V=V+VZTAU(I)*(1.0D0-CTAU(I)**2)
+            ENDIF
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF REPULSIONS AND ELECTROSTATIC
+C         INTERACTIONS.  IF AEX(I).LT.0 PROGRAM BYPASSES REPULSION.
+C         IF RNPOW(I)=0 PROGRAM BYPASSES ELECTROSTATIC INTERACTION.
+C
+      IF (NEXP.NE.0) THEN
+         DO I=1,NEXP
+            NJ=N7J(I)
+            NK=N7K(I)
+            JK=(NJ-1)*(2*NATOMS-NJ)/2+NK-NJ
+            IF (AEX(I).GE.0) THEN
+               V=V+AEX(I)*EXP(-BEX(I)*R(JK))
+            ENDIF
+            IF (RNPOW(I).NE.0) THEN
+               V=V+CEX(I)/R(JK)**RNPOW(I)
+            ENDIF
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF GHOST PAIRS
+C
+      IF (NGHOST.NE.0) THEN
+         DO I=1,NGHOST
+            V=V+GEX1(I)/GR(I,1)+GEX2(I)*(1.D0/GR(I,2)
+     *         +1.D0/GR(I,3)+1.D0/GR(I,4)+1.D0/GR(I,5))
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY FOR TETRAHEDRAL CENTERS
+C
+      IF (NTET.NE.0) THEN
+         DO I=1,NTET
+            DO J=1,6
+               V=V+0.5D0*FT(I,J)*ANG1(I,J,2)+GT(I,J)*ANG1(I,J,3)
+     *            +HT(I,J)*ANG1(I,J,4)
+            ENDDO
+            DO J=1,4
+               K=1+12*(J-1)
+               V=V+FD(I,J)*(DLTA(I,K+1)+DLTA(I,K+5)+DLTA(I,K+9))
+     *            +HD(I,J)*(DLTA(I,K+3)+DLTA(I,K+7)+DLTA(I,K+11))
+            ENDDO
+            DUM1=ANG1(I,1,1)*ANG1(I,2,1)*ANG1(I,4,1)
+            DUM2=ANG1(I,3,1)*ANG1(I,1,1)*ANG1(I,5,1)
+            DUM3=ANG1(I,3,1)*ANG1(I,2,1)*ANG1(I,6,1)
+            DUM4=ANG1(I,5,1)*ANG1(I,4,1)*ANG1(I,6,1)
+            V=V+GN4(I)*(DUM1+DUM2+DUM3+DUM4)
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF R-R COUPLING
+C
+      IF (NVRR.NE.0) THEN
+         DO I=1,NVRR
+            IA=N10I(I)
+            JA=N10J(I)
+            KA=N10K(I)
+            LA=N10L(I)
+            IJ=(IA-1)*(2*NATOMS-IA)/2+JA-IA
+            KL=(KA-1)*(2*NATOMS-KA)/2+LA-KA
+            V=V+FKRR(I)*(R(IJ)-RIJ0(I))*(R(KL)-RKL0(I))
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF R-THETA COUPLING
+C
+      IF (NVRT.NE.0) THEN
+         DO I=1,NVRT
+            IA=N11I(I)
+            JA=N11J(I)
+            IB=N11B(I)
+            IJ=(IA-1)*(2*NATOMS-IA)/2+JA-IA
+            V=V+FKRT(I)*(R(IJ)-R110(I))*(THETA(IB)-THETAZ(IB))
+         ENDDO
+      ENDIF
+
+C
+C         CALCULATE POTENTIAL ENERGY OF THETA-THETA COUPLING
+C
+      IF (NVTT.NE.0) THEN
+         DO I=1,NVTT
+            JB=N12B(I)
+            JBB=N12BB(I)
+            V=V+FKTT(I)*(THETA(JB)-THETAZ(JB))*(THETA(JBB)-THETAZ(JBB))
+         ENDDO
+      ENDIF
+C
+C         CALCULATE POTENTIAL ENERGY OF DIHEDRAL ANGLES
+C
+      IF (NANG.NE.0) THEN
+         DO I=1,NANG
+            K=NDH(I)
+            DO J=1,K
+               DUM=DBLE(J)
+               V=V+FDH(I,J)*(1.0D0+COS(DUM*DANG(I)-GDH(I,J)))/2.0D0
+            ENDDO
+         ENDDO
+      ENDIF
+C
+C         CALCULATE AXILROD-TELLER THREE-BODY POTENTIAL ENERGY
+C
+      IF (NAXT.NE.0) THEN
+         DO I=1,NAXT
+            V=V+VAXT(I)
+         ENDDO
+      ENDIF
+C
+C         CALCULATE SN2 POTENTIAL ENERGY
+C
+      IF (NSN2.NE.0) THEN
+         V=V+PESN2
+      ENDIF
+C
+C         CALCULATE RYDBERG FUNCTION POTENTIAL ENERGY
+C
+      IF (NRYD.NE.0) THEN
+         DO I=1,NRYD
+            V=V+VRYD(I)
+         ENDDO
+      ENDIF
+C
+C         CALCULATE HARTREE-FOCK DISPERSION POTENTIAL ENERGY
+C
+      IF (NHFD.NE.0) THEN
+          DO I=1,NHFD
+             V=V+VHFD(I)
+          ENDDO
+      ENDIF
+C
+C         CALCULATE LEPS(A) FUNCTION POTENTIAL ENERGY
+C
+      IF (NLEPSA.NE.0) THEN
+         DO I=1,NLEPSA
+            V=V+VLEPSA(I)
+         ENDDO
+      ENDIF
+C
+C         CALCULATE LEPS(B) FUNCTION POTENTIAL ENERGY
+C
+      IF (NLEPSB.NE.0) THEN
+         DO I=1,NLEPSB
+            V=V+VLEPSB(I)
+         ENDDO
+      ENDIF
+C
+C         CALCULATE DOUBLE MANY-BODY EXPANSION POTENTIAL ENERGY
+C
+      IF (NDMBE.NE.0) V=V+VDMBE
+C
+C         CALCULATE RELAX POTENTIAL ENERGY
+C
+      IF (NRAX.NE.0) THEN
+         DO I=1,NRAX
+            V=V+VRELAX(I)
+         ENDDO
+      ENDIF
+
+C
+C         CALCULATE H----H NONBONDED POTENTIAL ENERGY
+C
+      IF (NONB.NE.0) THEN
+         DO I=1,NONB
+            NJ=N22J(I)
+            NK=N22K(I)
+            JK=(NJ-1)*(2*NATOMS-NJ)/2+NK-NJ
+            VSR=ASR(I)*EXP(-BSR(I)*R(JK))+CSR(I)/(R(JK)**NDSR(I)) 
+            IF (R(JK).LT.AA0(I)) THEN
+               V=V+VSR
+            ELSE
+               VLR=ALR(I)*EXP(-BLR(I)*R(JK))+CLR(I)/(R(JK)**NDLR(I))
+               SR=1.0D0-TANH(AAS(I)*((R(JK)-AA0(I))**NAA(I)))
+               V=V+VSR*SR+(1.0D0-SR)*VLR
+            ENDIF
+         ENDDO
+      ENDIF
+
+C Vgauss is the energy obtained from Nwchem. Its added
+c Poteintial energy obtained from Venus
+
+      IF (NMO.NE.0) THEN
+           V=V+VGAUSS
+c         write(*,*)'v,vgauss',v,vgauss
+      ENDIF
+
+C
+C         ADD VZERO TO THE POTENTIAL ENERGY
+C
+      V=V+VZERO
+C
+C         CALCULATE KINETIC ENERGY
+C
+      J=1
+      DO I=1,NATOMS
+         T=T+(P(J)**2+P(J+1)**2+P(J+2)**2)/2.0/W(I)
+         J=J+3
+      ENDDO
+
+C
+C         CONVERT ENERGY TO KCAL/MOLE
+C
+      T=T/C1
+      V=V/C1
+      H=T+V
+c      write(6,*) "V=", V
+      RETURN
+      END

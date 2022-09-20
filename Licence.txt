@@ -1,0 +1,59 @@
+VENUSNW.1 is copyrighted and licensed.
+
+                                   
+
+Conditions for distributing the software:
+
+                                   
+
+1. No user or site will redistribute the source code or executable code to a third party in original or modified form without written permission of the principal investigator (William L. Hase) except as explicitly permitted by the paragraph below. The licensee has no ownership rights in the VENUSNW.1 software or in any copyrights for the VENUSNW.1 software or documentation through this license.
+
+2. A user license entitles the licensee (a person) and his/her research group and collaborators to use the program and share the source or executable code within a single research group. An installation license enables the licensee (company, organization, or computing center) to install the program and allow access to the executable code to any number of users at that company, organization, or computing center, respectively.
+
+3. Publications resulting from using VENUSNW.1 will reference the program. The recommended citations are: (a) W.L. Hase, R.J. Duchovic, X. Hu, A. Komornicki, K.F. Lim, D.-h. Lu, G.H. Peslherbe, K.N. Swamy, S.R. Vande Linde, A. Varandas, H. Wang, and R.J. Wolf, VENUS96C, Texas Tech University, Lubbock, TX, 2005.
+
+   (b) U. Lourderaj, R. Sun, S. C. Kohale, G. L Barnes, W. A. de Jong, T. L. Windus, and W. L. Hase, Computer Physics Communications, 185(2014)1074
+
+4. No guarantee is made that this program is bug-free or suitable for specific applications, and no liability is accepted for any limitations in the mathematical methods and algorithms used within the program.
+
+5. No consulting or maintenance services are guaranteed or implied.
+
+6. For VENUSNW.1, the same license applies to both non-profit and commercial users, and license fees are waived for both.
+
+ 
+
+Type of license: __user license __installation license
+
+Type of institution: __academic __government __industrial
+
+                                   
+
+Name of licensee (individual, company, organization, or computing center):
+
+                                   
+
+Address:
+
+                                   
+
+Phone:
+
+Fax :
+
+E-mail address (please print clearly):
+
+I agree to the conditions in this license.
+
+                                   
+
+Signature:
+
+Date:
+
+                                   
+
+Print name of person signing:
+
+                                   
+
+                                   
